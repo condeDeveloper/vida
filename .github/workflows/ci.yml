@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet build src/Vida/Vida.csproj -c Release
+      - run: dotnet test testes/Vida.Testes/Vida.Testes.csproj -c Release
+      - run: dotnet run --project ferramentas/Medidor -c Release -- censo
+      - run: dotnet run --project ferramentas/Medidor -c Release -- destino
+      - run: dotnet run --project ferramentas/Medidor -c Release -- formas
+      - run: dotnet run --project ferramentas/Medidor -c Release -- conhecidas
+      - run: dotnet run --project ferramentas/Medidor -c Release -- juizes
